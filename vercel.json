@@ -3,6 +3,10 @@
         { "handle": "filesystem" },
         { "src": "/demo/?", "dest": "/api/demo/index.php" },
         { "src": "/demo/(.+)", "dest": "/api/demo/vercel-static.php" },
+        { "src": "/top-langs/?", "dest": "/api/index.php?card=top-langs" },
+        { "src": "/stats/?", "dest": "/api/index.php?card=stats" },
+        { "src": "/api/top-langs/?", "dest": "/api/index.php?card=top-langs" },
+        { "src": "/api/stats/?", "dest": "/api/index.php?card=stats" },
         { "src": "/", "dest": "/api/index.php" }
     ],
     "functions": {

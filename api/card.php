@@ -800,6 +800,25 @@ function convertSvgToPng(string $svg, int $cardWidth, int $cardHeight): string
 }
 
 /**
+ * Choose which SVG card to render from a stats payload
+ *
+ * @param array<string,mixed> $output Stats payload
+ * @param array<string,mixed> $params Request parameters
+ * @return string SVG markup
+ */
+function generateRequestedCard(array $output, array $params): string
+{
+    $cardType = $output["cardType"] ?? "streak";
+    if ($cardType === "stats") {
+        return generateProfileStatsCard($output, $params);
+    }
+    if ($cardType === "top-langs") {
+        return generateTopLangsCard($output, $params);
+    }
+    return generateCard($output, $params);
+}
+
+/**
  * Return headers and response based on type
  *
  * @param string|array $output The stats (array) or error message (string) to display
@@ -824,7 +843,10 @@ function generateOutput(string|array $output, ?array $params = null, int $errorC
     }
 
     // generate SVG card
-    $svg = gettype($output) === "string" ? generateErrorCard($output, $params) : generateCard($output, $params);
+    $svg =
+        gettype($output) === "string"
+            ? generateErrorCard($output, $params)
+            : generateRequestedCard($output, $params);
 
     // some renderers such as inkscape doesn't support transparent colors in hex format, so we need to convert them
     $svg = convertHexColors($svg);
