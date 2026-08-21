@@ -29,7 +29,8 @@ final class ProfileCardsTest extends TestCase
 
         $this->assertStringContainsString("unrastand's GitHub Stats", $svg);
         $this->assertStringContainsString("Total Stars Earned", $svg);
-        $this->assertStringContainsString("A+", $svg);
+        $this->assertStringContainsString(">A</tspan>", $svg);
+        $this->assertStringContainsString(">+</tspan>", $svg);
         $this->assertStringContainsString("#151515", $svg);
     }
 

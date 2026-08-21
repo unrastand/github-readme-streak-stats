@@ -139,14 +139,12 @@ function calculateGitHubRank(array $stats): array
     $percentile = $rankScore * 100;
     $levels = [
         ["S", 1],
-        ["A+", 12.5],
-        ["A", 25],
+        ["A+", 18],
         ["A-", 37.5],
-        ["B+", 50],
-        ["B", 62.5],
+        ["B+", 56],
         ["B-", 75],
         ["C+", 87.5],
-        ["C", 100],
+        ["C-", 100],
     ];
     $level = "C";
     foreach ($levels as [$name, $threshold]) {
@@ -256,6 +254,7 @@ function generateProfileCardData(string $user, string $cardType, array $params =
     $cacheOptions = [
         "card" => $cardType,
         "langs_count" => $langsCount,
+        "rank_scale" => "signed-v1",
     ];
     $useCache = !isset($_SERVER["DISABLE_CACHE"]) || strtolower(strval($_SERVER["DISABLE_CACHE"])) !== "true";
     $cached = $useCache ? getCachedStats($user, $cacheOptions) : null;
@@ -320,7 +319,9 @@ function generateProfileStatsCard(array $stats, ?array $params = null): string
     $cardWidth = 495;
     $cardHeight = 195;
     $title = escapeSvgText(($stats["name"] ?? $stats["login"] ?? "GitHub") . "'s GitHub Stats");
-    $rankLevel = escapeSvgText(strval($stats["rank"]["level"] ?? "C"));
+    $rankLevel = strval($stats["rank"]["level"] ?? "C-");
+    $rankLetter = escapeSvgText(substr($rankLevel, 0, 1));
+    $rankSuffix = escapeSvgText(substr($rankLevel, 1));
     $percentile = floatval($stats["rank"]["percentile"] ?? 100);
     $rankProgress = max(0, min(1, 1 - $percentile / 100));
     $circumference = 2 * M_PI * 40;
@@ -362,7 +363,10 @@ function generateProfileStatsCard(array $stats, ?array $params = null): string
                 <circle r='40' fill='none' stroke='{$theme["stroke"]}' stroke-width='6'/>
                 <circle r='40' fill='none' stroke='{$theme["ring"]}' stroke-width='6' stroke-linecap='round'
                     stroke-dasharray='{$circumference}' stroke-dashoffset='{$dashOffset}' transform='rotate(-90)'/>
-                <text x='0' y='8' text-anchor='middle' fill='{$theme["currStreakNum"]}' font-family='\"Segoe UI\", Ubuntu, sans-serif' font-size='24px' font-weight='700'>{$rankLevel}</text>
+                <text x='0' y='8' text-anchor='middle' fill='{$theme["currStreakNum"]}' font-family='\"Segoe UI\", Ubuntu, sans-serif' font-weight='700'>
+                    <tspan font-size='22px'>{$rankLetter}</tspan>
+                    <tspan font-size='14px' dx='1' dy='-8'>{$rankSuffix}</tspan>
+                </text>
             </g>";
     }
 
