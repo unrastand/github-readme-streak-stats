@@ -30,10 +30,15 @@ header("Cache-Control: public, max-age=$cacheSeconds");
 
 $requestPath = parse_url($_SERVER["REQUEST_URI"] ?? "/", PHP_URL_PATH) ?: "/";
 $card = strtolower(strval($_REQUEST["card"] ?? ""));
+// github-readme-stats compatible params: show_icons → rank card, layout=compact → languages
 if ($card === "") {
-    if (preg_match("#top-langs#", $requestPath)) {
+    if (preg_match("#top-langs#", $requestPath) || isset($_REQUEST["layout"])) {
         $card = "top-langs";
-    } elseif (preg_match("#(^|/)stats(/|$)#", $requestPath)) {
+    } elseif (
+        preg_match("#(^|/)stats(/|$)#", $requestPath) ||
+        ($_REQUEST["show_icons"] ?? "") === "true" ||
+        isset($_REQUEST["hide_rank"])
+    ) {
         $card = "stats";
     }
 }
