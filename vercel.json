@@ -1,13 +1,15 @@
 {
+    "rewrites": [
+        { "source": "/demo", "destination": "/api/demo/index.php" },
+        { "source": "/demo/", "destination": "/api/demo/index.php" },
+        { "source": "/demo/:path*", "destination": "/api/demo/vercel-static.php" },
+        { "source": "/(.*)", "destination": "/api/index.php" }
+    ],
     "routes": [
         { "handle": "filesystem" },
         { "src": "/demo/?", "dest": "/api/demo/index.php" },
         { "src": "/demo/(.+)", "dest": "/api/demo/vercel-static.php" },
-        { "src": "/top-langs/?", "dest": "/api/index.php?card=top-langs" },
-        { "src": "/stats/?", "dest": "/api/index.php?card=stats" },
-        { "src": "/api/top-langs/?", "dest": "/api/index.php?card=top-langs" },
-        { "src": "/api/stats/?", "dest": "/api/index.php?card=stats" },
-        { "src": "/", "dest": "/api/index.php" }
+        { "src": "/(.*)", "dest": "/api/index.php" }
     ],
     "functions": {
         "api/index.php": {

@@ -31,9 +31,9 @@ header("Cache-Control: public, max-age=$cacheSeconds");
 $requestPath = parse_url($_SERVER["REQUEST_URI"] ?? "/", PHP_URL_PATH) ?: "/";
 $card = strtolower(strval($_REQUEST["card"] ?? ""));
 if ($card === "") {
-    if (preg_match("#/(top-langs)(/|$)#", $requestPath)) {
+    if (preg_match("#top-langs#", $requestPath)) {
         $card = "top-langs";
-    } elseif (preg_match("#/(stats)(/|$)#", $requestPath)) {
+    } elseif (preg_match("#(^|/)stats(/|$)#", $requestPath)) {
         $card = "stats";
     }
 }
