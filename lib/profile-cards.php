@@ -146,7 +146,7 @@ function calculateGitHubRank(array $stats): array
         ["C+", 87.5],
         ["C-", 100],
     ];
-    $level = "C";
+    $level = "C-";
     foreach ($levels as [$name, $threshold]) {
         if ($percentile <= $threshold) {
             $level = $name;
@@ -254,7 +254,7 @@ function generateProfileCardData(string $user, string $cardType, array $params =
     $cacheOptions = [
         "card" => $cardType,
         "langs_count" => $langsCount,
-        "rank_scale" => "signed-v1",
+        "rank_scale" => "signed-v2",
     ];
     $useCache = !isset($_SERVER["DISABLE_CACHE"]) || strtolower(strval($_SERVER["DISABLE_CACHE"])) !== "true";
     $cached = $useCache ? getCachedStats($user, $cacheOptions) : null;
@@ -319,9 +319,7 @@ function generateProfileStatsCard(array $stats, ?array $params = null): string
     $cardWidth = 495;
     $cardHeight = 195;
     $title = escapeSvgText(($stats["name"] ?? $stats["login"] ?? "GitHub") . "'s GitHub Stats");
-    $rankLevel = strval($stats["rank"]["level"] ?? "C-");
-    $rankLetter = escapeSvgText(substr($rankLevel, 0, 1));
-    $rankSuffix = escapeSvgText(substr($rankLevel, 1));
+    $rankLevel = escapeSvgText(strval($stats["rank"]["level"] ?? "C-"));
     $percentile = floatval($stats["rank"]["percentile"] ?? 100);
     $rankProgress = max(0, min(1, 1 - $percentile / 100));
     $circumference = 2 * M_PI * 40;
@@ -363,10 +361,7 @@ function generateProfileStatsCard(array $stats, ?array $params = null): string
                 <circle r='40' fill='none' stroke='{$theme["stroke"]}' stroke-width='6'/>
                 <circle r='40' fill='none' stroke='{$theme["ring"]}' stroke-width='6' stroke-linecap='round'
                     stroke-dasharray='{$circumference}' stroke-dashoffset='{$dashOffset}' transform='rotate(-90)'/>
-                <text x='0' y='8' text-anchor='middle' fill='{$theme["currStreakNum"]}' font-family='\"Segoe UI\", Ubuntu, sans-serif' font-weight='700'>
-                    <tspan font-size='22px'>{$rankLetter}</tspan>
-                    <tspan font-size='14px' dx='1' dy='-8'>{$rankSuffix}</tspan>
-                </text>
+                <text x='0' y='8' text-anchor='middle' fill='{$theme["currStreakNum"]}' font-family='\"Segoe UI\", Ubuntu, sans-serif' font-size='20px' font-weight='700'>{$rankLevel}</text>
             </g>";
     }
 
@@ -412,9 +407,8 @@ function generateTopLangsCard(array $data, ?array $params = null): string
         $total += intval($lang["size"] ?? 0);
     }
     $title = escapeSvgText("Most Used Languages");
-    $cardWidth = $layout === "compact" ? 300 : 300;
-    $rows = max(count($langs), 1);
-    $cardHeight = $layout === "compact" ? 90 + intval(ceil($rows / 2) * 22) : 55 + $rows * 40;
+    $cardWidth = 495;
+    $cardHeight = 195;
 
     $bar = "";
     $labels = "";
@@ -425,25 +419,25 @@ function generateTopLangsCard(array $data, ?array $params = null): string
             $pct = intval($lang["size"]) / $total;
             $width = max(2, $pct * $barWidth);
             $color = escapeSvgText($lang["color"] ?: "#8B949E");
-            $bar .= "<rect x='{$x}' y='50' width='{$width}' height='8' fill='{$color}'/>";
+            $bar .= "<rect x='{$x}' y='58' width='{$width}' height='12' rx='2' fill='{$color}'/>";
             $x += $width;
         }
         if ($layout === "compact") {
             foreach ($langs as $index => $lang) {
                 $col = $index % 2;
                 $row = intdiv($index, 2);
-                $lx = 25 + $col * 140;
-                $ly = 82 + $row * 22;
+                $lx = 40 + $col * 230;
+                $ly = 100 + $row * 28;
                 $name = escapeSvgText(strval($lang["name"]));
                 $percent = number_format((intval($lang["size"]) / $total) * 100, 2);
                 $color = escapeSvgText($lang["color"] ?: "#8B949E");
                 $labels .= "
                     <circle cx='{$lx}' cy='" .
                     ($ly - 4) .
-                    "' r='4' fill='{$color}'/>
+                    "' r='5' fill='{$color}'/>
                     <text x='" .
-                    ($lx + 12) .
-                    "' y='{$ly}' fill='{$theme["sideLabels"]}' font-family='\"Segoe UI\", Ubuntu, sans-serif' font-size='12px'>{$name} {$percent}%</text>";
+                    ($lx + 14) .
+                    "' y='{$ly}' fill='{$theme["sideLabels"]}' font-family='\"Segoe UI\", Ubuntu, sans-serif' font-size='14px'>{$name} {$percent}%</text>";
             }
         } else {
             foreach ($langs as $index => $lang) {
