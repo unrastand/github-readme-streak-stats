@@ -175,12 +175,12 @@ function fetchGitHubProfileStats(string $user): array
             followers { totalCount }
             issues { totalCount }
             pullRequests { totalCount }
-            repositoriesContributedTo(contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
-                totalCount
-            }
             contributionsCollection {
                 totalCommitContributions
                 restrictedContributionsCount
+                contributionCalendar {
+                    totalContributions
+                }
             }
         }
     }";
@@ -194,6 +194,10 @@ function fetchGitHubProfileStats(string $user): array
     $commits =
         intval($githubUser->contributionsCollection->totalCommitContributions ?? 0) +
         intval($githubUser->contributionsCollection->restrictedContributionsCount ?? 0);
+    $calendarTotal = intval(
+        $githubUser->contributionsCollection->contributionCalendar->totalContributions ?? 0,
+    );
+    $restricted = intval($githubUser->contributionsCollection->restrictedContributionsCount ?? 0);
     $stats = [
         "cardType" => "stats",
         "name" => strval($githubUser->name ?: $githubUser->login),
@@ -202,7 +206,7 @@ function fetchGitHubProfileStats(string $user): array
         "commits" => $commits,
         "prs" => intval($githubUser->pullRequests->totalCount ?? 0),
         "issues" => intval($githubUser->issues->totalCount ?? 0),
-        "contributedTo" => intval($githubUser->repositoriesContributedTo->totalCount ?? 0),
+        "contributedTo" => $calendarTotal + $restricted,
         "followers" => intval($githubUser->followers->totalCount ?? 0),
     ];
     $stats["rank"] = calculateGitHubRank($stats);
@@ -254,7 +258,7 @@ function generateProfileCardData(string $user, string $cardType, array $params =
     $cacheOptions = [
         "card" => $cardType,
         "langs_count" => $langsCount,
-        "rank_scale" => "signed-v2",
+        "rank_scale" => "signed-v3",
     ];
     $useCache = !isset($_SERVER["DISABLE_CACHE"]) || strtolower(strval($_SERVER["DISABLE_CACHE"])) !== "true";
     $cached = $useCache ? getCachedStats($user, $cacheOptions) : null;
@@ -330,7 +334,7 @@ function generateProfileStatsCard(array $stats, ?array $params = null): string
         ["commits", "Total Commits (this year)", intval($stats["commits"] ?? 0)],
         ["prs", "Total PRs", intval($stats["prs"] ?? 0)],
         ["issues", "Total Issues", intval($stats["issues"] ?? 0)],
-        ["contributedTo", "Contributed to (last year)", intval($stats["contributedTo"] ?? 0)],
+        ["contributedTo", "Total Contributions (last year)", intval($stats["contributedTo"] ?? 0)],
     ];
     $icons = profileStatIcons();
     $iconColor = $theme["ring"];
