@@ -5,7 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 require_once "api/card.php";
-require_once "api/profile-cards.php";
+require_once "lib/profile-cards.php";
 
 final class ProfileCardsTest extends TestCase
 {

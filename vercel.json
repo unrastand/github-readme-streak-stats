@@ -1,10 +1,4 @@
 {
-    "rewrites": [
-        { "source": "/demo", "destination": "/api/demo/index.php" },
-        { "source": "/demo/", "destination": "/api/demo/index.php" },
-        { "source": "/demo/:path*", "destination": "/api/demo/vercel-static.php" },
-        { "source": "/(.*)", "destination": "/api/index.php" }
-    ],
     "routes": [
         { "handle": "filesystem" },
         { "src": "/demo/?", "dest": "/api/demo/index.php" },

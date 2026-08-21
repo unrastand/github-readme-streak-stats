@@ -8,7 +8,7 @@ require_once "stats.php";
 require_once "card.php";
 require_once "cache.php";
 require_once "generator.php";
-require_once "profile-cards.php";
+require_once __DIR__ . "/../lib/profile-cards.php";
 
 // load .env
 $dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__, 1));
